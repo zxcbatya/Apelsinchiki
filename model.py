@@ -45,15 +45,13 @@ print(df.isnull().sum())
 # Fill missing values in driver_rating with median
 df['driver_rating'].fillna(df['driver_rating'].median(), inplace=True)
 
-# Select features for the model
+# Select features for the model (removed only duplicates)
 feature_columns = [
-    'distance_in_meters', 'duration_in_seconds', 
-    'driver_rating', 'pickup_in_meters', 'pickup_in_seconds',
+    'distance_km', 'duration_minutes',  # only converted versions
+    'driver_rating', 'pickup_distance_km', 'pickup_duration_minutes',
     'price_start_local', 'price_bid_local',
     'price_increase_percent', 'price_abs_diff', 
-    'price_per_km', 'price_per_minute',
-    'distance_km', 'duration_minutes',
-    'pickup_distance_km', 'pickup_duration_minutes'
+    'price_per_km', 'price_per_minute'
 ]
 
 # Select categorical features
@@ -108,11 +106,22 @@ model.compile(optimizer='adam',
 # Display model architecture
 model.summary()
 
+# Add early stopping with more patience
+from tensorflow.keras import callbacks
+
+early_stopping = callbacks.EarlyStopping(
+    monitor='val_loss',
+    patience=15,  # больше терпения
+    restore_best_weights=True,
+    verbose=1
+)
+
 # Train the model
 history = model.fit(X_train_scaled, y_train,
-                    epochs=50,
+                    epochs=100,  # увеличим лимит
                     batch_size=32,
                     validation_split=0.2,
+                    callbacks=[early_stopping],
                     verbose=1)
 
 # Evaluate the model
@@ -180,13 +189,8 @@ def find_optimal_price(model, scaler, base_features, price_candidates, label_enc
         temp_df['price_bid_local'] = price
         temp_df['price_increase_percent'] = (price - temp_df['price_start_local']) / temp_df['price_start_local']
         temp_df['price_abs_diff'] = price - temp_df['price_start_local']
-        temp_df['price_per_km'] = price / (temp_df['distance_in_meters'] / 1000 + 1e-5)
-        temp_df['price_per_minute'] = price / (temp_df['duration_in_seconds'] / 60 + 1e-5)
-        # Derived features that match training preprocessing
-        temp_df['distance_km'] = temp_df['distance_in_meters'] / 1000
-        temp_df['duration_minutes'] = temp_df['duration_in_seconds'] / 60
-        temp_df['pickup_distance_km'] = temp_df['pickup_in_meters'] / 1000
-        temp_df['pickup_duration_minutes'] = temp_df['pickup_in_seconds'] / 60
+        temp_df['price_per_km'] = price / (temp_df['distance_km'] + 1e-5)
+        temp_df['price_per_minute'] = price / (temp_df['duration_minutes'] + 1e-5)
         
         # Prepare features in the same way as training data
         X_numerical = temp_df[feature_columns].copy()
@@ -232,11 +236,11 @@ print("="*50)
 
 # Create example base features (you would replace this with actual order data)
 example_base_features = {
-    'distance_in_meters': 3000,
-    'duration_in_seconds': 600,
+    'distance_km': 3.0,  # converted to km
+    'duration_minutes': 10.0,  # converted to minutes
     'driver_rating': 4.8,
-    'pickup_in_meters': 500,
-    'pickup_in_seconds': 120,
+    'pickup_distance_km': 0.5,  # converted to km
+    'pickup_duration_minutes': 2.0,  # converted to minutes
     'price_start_local': 200,
     'carmodel': 'Logan',
     'carname': 'Renault',
