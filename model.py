@@ -182,6 +182,11 @@ def find_optimal_price(model, scaler, base_features, price_candidates, label_enc
         temp_df['price_abs_diff'] = price - temp_df['price_start_local']
         temp_df['price_per_km'] = price / (temp_df['distance_in_meters'] / 1000 + 1e-5)
         temp_df['price_per_minute'] = price / (temp_df['duration_in_seconds'] / 60 + 1e-5)
+        # Derived features that match training preprocessing
+        temp_df['distance_km'] = temp_df['distance_in_meters'] / 1000
+        temp_df['duration_minutes'] = temp_df['duration_in_seconds'] / 60
+        temp_df['pickup_distance_km'] = temp_df['pickup_in_meters'] / 1000
+        temp_df['pickup_duration_minutes'] = temp_df['pickup_in_seconds'] / 60
         
         # Prepare features in the same way as training data
         X_numerical = temp_df[feature_columns].copy()
