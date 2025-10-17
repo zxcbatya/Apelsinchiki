@@ -1,0 +1,47 @@
+# Model files
+pricing_model.h5
+*.h5
+*.pkl
+*.joblib
+
+# Data files (if sensitive)
+# train.csv
+# *.csv
+
+# Generated plots and images
+training_history.png
+*.png
+*.jpg
+*.jpeg
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp    
