@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# Model files
+
 pricing_model.h5
 *.h5
 *.pkl
@@ -46,7 +45,4 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp    
-=======
-training_history.png
-pricing_model.h5
->>>>>>> 240de1215431050fd5b4f12703b52630dede07dd
+
